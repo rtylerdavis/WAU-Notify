@@ -59,7 +59,7 @@ function Start-UpdatePromptTask {
 
     try {
         $payload | ConvertTo-Json -Depth 3 | Set-Content -Path $JsonPath -Encoding UTF8 -Force
-        Write-ToLog "Pending updates written ($($PendingApps.Count) app(s)): $JsonPath"
+        Write-ToLog "Pending updates written ($($PendingApps.Count) app`(s`)): $JsonPath"
     }
     catch {
         Write-ToLog "ERROR: Could not write pending-updates.json — $($_.Exception.Message)" "Red"

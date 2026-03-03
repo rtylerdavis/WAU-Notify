@@ -86,7 +86,7 @@ if (-not $pendingData.Apps -or @($pendingData.Apps).Count -eq 0) {
     Exit 0
 }
 
-Write-ToLog "$(@($pendingData.Apps).Count) app(s) queued for update"
+Write-ToLog "$(@($pendingData.Apps).Count) app`(s`) queued for update"
 #endregion READ PENDING UPDATES
 
 #region PROCESS UPDATES
@@ -119,7 +119,7 @@ Remove-Item -Path $JsonPath -Force -ErrorAction SilentlyContinue
 Write-ToLog "pending-updates.json removed"
 
 if ($Script:InstallOK -gt 0) {
-    Write-ToLog "$Script:InstallOK app(s) successfully updated" "Green"
+    Write-ToLog "$Script:InstallOK app`(s`) successfully updated" "Green"
 }
 else {
     Write-ToLog "No apps were successfully updated" "Yellow"
