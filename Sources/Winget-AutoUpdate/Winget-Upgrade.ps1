@@ -271,7 +271,7 @@ if (Test-Network) {
 
         #region DEADLINE CONFIG
         # Read update deadline settings (system context only).
-        # DeadlineDays = 0 means deadline mode is disabled — normal silent update behaviour applies.
+        # DeadlineDays = 0 means deadline mode is disabled -- normal silent update behaviour applies.
         [int]$DeadlineDays = 0
         [int]$ReminderIntervalDays = 2
         if ($Script:IsSystem) {
@@ -287,7 +287,7 @@ if (Test-Network) {
                 $DeadlineRegPath = "HKLM:\SOFTWARE\Romanitho\Winget-AutoUpdate\UpdateDeadlines"
                 if (Test-Path $DeadlineRegPath) {
                     Remove-Item -Path $DeadlineRegPath -Recurse -Force -ErrorAction SilentlyContinue
-                    Write-ToLog "Deadline mode disabled — registry entries purged"
+                    Write-ToLog "Deadline mode disabled -- registry entries purged"
                 }
             }
         }
@@ -342,7 +342,7 @@ if (Test-Network) {
 
                 Write-ToLog "Deadline summary: $($overdueEntries.Count) overdue, $($pendingEntries.Count) pending"
 
-                # Step 3: Forced background update for overdue apps — no dialog shown.
+                # Step 3: Forced background update for overdue apps -- no dialog shown.
                 if ($overdueEntries.Count -gt 0) {
                     Write-ToLog "Processing $($overdueEntries.Count) overdue apps" "DarkYellow"
                     foreach ($entry in $overdueEntries) {
@@ -358,7 +358,7 @@ if (Test-Network) {
                                 }
                             }
                             else {
-                                Write-ToLog "$($app.Name) : forced update could not be confirmed — deadline entry preserved" "Yellow"
+                                Write-ToLog "$($app.Name) : forced update could not be confirmed -- deadline entry preserved" "Yellow"
                             }
                         }
                         elseif ($app -and $app.Version -eq "Unknown") {
@@ -372,7 +372,7 @@ if (Test-Network) {
                 if ($pendingEntries.Count -gt 0) {
                     $explorerprocesses = @(Get-CimInstance -Query "SELECT * FROM Win32_Process WHERE Name='explorer.exe'" -ErrorAction SilentlyContinue)
                     if ($explorerprocesses.Count -eq 0) {
-                        Write-ToLog "No user logged on — skipping update prompt for $($pendingEntries.Count) pending apps" "Gray"
+                        Write-ToLog "No user logged on -- skipping update prompt for $($pendingEntries.Count) pending apps" "Gray"
                     }
                     else {
                         # Check snooze: if NextPromptTime is set and hasn't elapsed, skip the prompt.
@@ -389,7 +389,7 @@ if (Test-Network) {
                             }
                         }
                         catch {
-                            # Parse failure — show the prompt (fail open)
+                            # Parse failure -- show the prompt (fail open)
                         }
 
                         if ($showPrompt) {

@@ -7,7 +7,7 @@
     today, Deadline set to today + DeadlineDays, and AvailableVersion from the app.
 
     For apps with an existing entry: updates AvailableVersion only if a newer version
-    is now available. The original FirstDetected and Deadline are always preserved —
+    is now available. The original FirstDetected and Deadline are always preserved --
     the deadline clock never resets due to a version bump.
 
 .PARAMETER App
@@ -38,18 +38,18 @@ function Set-UpdateDeadline {
 
     if (Test-Path $AppRegPath) {
 
-        # Entry exists — only update AvailableVersion if a newer version is now available.
+        # Entry exists -- only update AvailableVersion if a newer version is now available.
         # FirstDetected and Deadline are intentionally preserved (deadline never resets).
         $existing = Get-ItemProperty -Path $AppRegPath -ErrorAction SilentlyContinue
         if ($existing.AvailableVersion -ne $App.AvailableVersion) {
             Set-ItemProperty -Path $AppRegPath -Name "AvailableVersion" -Value $App.AvailableVersion
-            Write-ToLog "Deadline entry updated (new version): $($App.Id) — $($existing.AvailableVersion) → $($App.AvailableVersion)"
+            Write-ToLog "Deadline entry updated (new version): $($App.Id) -- $($existing.AvailableVersion) -> $($App.AvailableVersion)"
         }
 
     }
     else {
 
-        # New entry — set the deadline clock from today
+        # New entry -- set the deadline clock from today
         $today    = (Get-Date).Date
         $deadline = $today.AddDays($DeadlineDays)
 
@@ -58,6 +58,6 @@ function Set-UpdateDeadline {
         Set-ItemProperty -Path $AppRegPath -Name "Deadline"         -Value $deadline.ToString("yyyy-MM-dd")
         Set-ItemProperty -Path $AppRegPath -Name "AvailableVersion" -Value $App.AvailableVersion
 
-        Write-ToLog "Deadline entry created: $($App.Id) — due $($deadline.ToString('yyyy-MM-dd')) ($DeadlineDays days)"
+        Write-ToLog "Deadline entry created: $($App.Id) -- due $($deadline.ToString('yyyy-MM-dd')) ($DeadlineDays days)"
     }
 }

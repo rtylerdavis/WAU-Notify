@@ -8,10 +8,10 @@
     dialog listing apps with pending deadlines.
 
     User actions:
-        "Update Now"     — fires Winget-AutoUpdate-UpdateNow task, then exits
-        "Remind Me"      — writes NextPromptTime to HKLM, then exits
-        Window close (X) — treated as Remind
-        Timeout (5 min)  — treated as Remind
+        "Update Now"     -- fires Winget-AutoUpdate-UpdateNow task, then exits
+        "Remind Me"      -- writes NextPromptTime to HKLM, then exits
+        Window close (X) -- treated as Remind
+        Timeout (5 min)  -- treated as Remind
 
     Must be launched with PowerShell -Sta flag (STA apartment model required for WPF).
 
@@ -232,7 +232,7 @@ $appListCtrl.ItemsSource = $sortedRows
 # window-close (X) and timeout both result in snooze behaviour.
 $script:Action = 'Remind'
 
-# 5-minute countdown — treated as Remind on expiry
+# 5-minute countdown -- treated as Remind on expiry
 $script:SecondsRemaining = 300
 
 $timer = New-Object System.Windows.Threading.DispatcherTimer
@@ -264,7 +264,7 @@ $remindBtn.Add_Click({
     $window.Close()
 })
 
-# Closing via X button — timer already stopped by button handlers if applicable,
+# Closing via X button -- timer already stopped by button handlers if applicable,
 # but stop it here too in case the user closes the window directly.
 $window.Add_Closing({
     $timer.Stop()
@@ -282,7 +282,7 @@ if ($script:Action -eq 'UpdateNow') {
     }
 }
 else {
-    # Snooze — record when the next prompt is allowed so the main
+    # Snooze -- record when the next prompt is allowed so the main
     # SYSTEM task skips the prompt until this time has passed.
     $nextPromptTime = (Get-Date).AddDays($reminderDays).ToString('o')
     $WAURegPath     = 'HKLM:\SOFTWARE\Romanitho\Winget-AutoUpdate'
@@ -290,7 +290,7 @@ else {
         Set-ItemProperty -Path $WAURegPath -Name 'NextPromptTime' -Value $nextPromptTime
     }
     catch {
-        # Non-fatal — worst case WAU prompts again on next run
+        # Non-fatal -- worst case WAU prompts again on next run
     }
 }
 #endregion ACT ON CHOICE

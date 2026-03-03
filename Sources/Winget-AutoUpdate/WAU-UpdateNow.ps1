@@ -57,7 +57,7 @@ Write-ToLog "Notification Level: $($Script:WAUConfig.WAU_NotificationLevel). Not
 [string]$Script:Winget = Get-WingetCmd
 
 if (-not $Script:Winget) {
-    Write-ToLog "Critical: Winget not found — cannot process updates" "Red"
+    Write-ToLog "Critical: Winget not found -- cannot process updates" "Red"
     Exit 1
 }
 
@@ -68,7 +68,7 @@ Write-ToLog "Selected winget instance: $Script:Winget"
 $JsonPath = [System.IO.Path]::Combine($Script:WorkingDir, 'config', 'pending-updates.json')
 
 if (-not (Test-Path $JsonPath)) {
-    Write-ToLog "No pending-updates.json found — nothing to update" "Cyan"
+    Write-ToLog "No pending-updates.json found -- nothing to update" "Cyan"
     Exit 0
 }
 
@@ -76,12 +76,12 @@ try {
     $pendingData = Get-Content -Path $JsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
 }
 catch {
-    Write-ToLog "ERROR: Could not parse pending-updates.json — $($_.Exception.Message)" "Red"
+    Write-ToLog "ERROR: Could not parse pending-updates.json -- $($_.Exception.Message)" "Red"
     Exit 1
 }
 
 if (-not $pendingData.Apps -or @($pendingData.Apps).Count -eq 0) {
-    Write-ToLog "pending-updates.json contains no apps — nothing to update" "Cyan"
+    Write-ToLog "pending-updates.json contains no apps -- nothing to update" "Cyan"
     Remove-Item -Path $JsonPath -Force -ErrorAction SilentlyContinue
     Exit 0
 }
@@ -95,11 +95,11 @@ $DeadlineRegBase  = "HKLM:\SOFTWARE\Romanitho\Winget-AutoUpdate\UpdateDeadlines"
 
 foreach ($app in $pendingData.Apps) {
 
-    Write-ToLog "-> $($app.Name) : $($app.Version) → $($app.AvailableVersion)"
+    Write-ToLog "-> $($app.Name) : $($app.Version) -> $($app.AvailableVersion)"
 
     Update-App $app
 
-    # Confirm-Installation independently verifies success — Update-App has no return value.
+    # Confirm-Installation independently verifies success -- Update-App has no return value.
     # Only purge the deadline entry once the new version is confirmed installed.
     if (Confirm-Installation $app.Id $app.AvailableVersion) {
         $AppRegPath = Join-Path $DeadlineRegBase $app.Id
@@ -109,7 +109,7 @@ foreach ($app in $pendingData.Apps) {
         }
     }
     else {
-        Write-ToLog "$($app.Name) : update could not be confirmed — deadline entry preserved for next run" "Yellow"
+        Write-ToLog "$($app.Name) : update could not be confirmed -- deadline entry preserved for next run" "Yellow"
     }
 }
 #endregion PROCESS UPDATES

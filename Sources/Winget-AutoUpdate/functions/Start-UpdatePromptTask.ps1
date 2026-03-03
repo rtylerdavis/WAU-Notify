@@ -7,7 +7,7 @@
     then fires the Winget-AutoUpdate-UpdatePrompt scheduled task which presents the
     WPF deadline dialog to the logged-in user.
 
-    This function is fire-and-forget — it returns immediately after starting the task.
+    This function is fire-and-forget -- it returns immediately after starting the task.
     The caller should not poll for task completion.
 
     The JSON payload format:
@@ -62,7 +62,7 @@ function Start-UpdatePromptTask {
         Write-ToLog "Pending updates written: $($PendingApps.Count) apps - $JsonPath"
     }
     catch {
-        Write-ToLog "ERROR: Could not write pending-updates.json — $($_.Exception.Message)" "Red"
+        Write-ToLog "ERROR: Could not write pending-updates.json -- $($_.Exception.Message)" "Red"
         return
     }
 
@@ -74,6 +74,6 @@ function Start-UpdatePromptTask {
         Write-ToLog "Winget-AutoUpdate-UpdatePrompt task triggered"
     }
     else {
-        Write-ToLog "WARNING: Winget-AutoUpdate-UpdatePrompt task not found — update prompt will not be shown" "Yellow"
+        Write-ToLog "WARNING: Winget-AutoUpdate-UpdatePrompt task not found -- update prompt will not be shown" "Yellow"
     }
 }

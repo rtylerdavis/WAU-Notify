@@ -127,7 +127,7 @@ function Install-WingetAutoUpdate {
         $task = New-ScheduledTask -Action $taskAction -Principal $taskPrincipal -Settings $taskSettings -Trigger $taskTrigger
         Register-ScheduledTask -TaskName 'Winget-AutoUpdate-Policies' -TaskPath 'WAU' -InputObject $task -Force | Out-Null
 
-        # UpdatePrompt task (SYSTEM via ServiceUI.exe — shows WPF deadline dialog in user's desktop session)
+        # UpdatePrompt task (SYSTEM via ServiceUI.exe -- shows WPF deadline dialog in user's desktop session)
         $taskAction = New-ScheduledTaskAction -Execute "${InstallPath}ServiceUI.exe" `
             -Argument "-process:explorer.exe conhost.exe --headless powershell.exe -NoProfile -ExecutionPolicy Bypass -Sta -File WAU-UpdatePrompt.ps1" `
             -WorkingDirectory $InstallPath
@@ -136,7 +136,7 @@ function Install-WingetAutoUpdate {
         $task = New-ScheduledTask -Action $taskAction -Principal $taskPrincipal -Settings $taskSettings
         Register-ScheduledTask -TaskName 'Winget-AutoUpdate-UpdatePrompt' -TaskPath 'WAU' -InputObject $task -Force | Out-Null
 
-        # UpdateNow task (SYSTEM — installs updates triggered by user clicking "Update Now" in the deadline dialog)
+        # UpdateNow task (SYSTEM -- installs updates triggered by user clicking "Update Now" in the deadline dialog)
         $taskAction = New-ScheduledTaskAction -Execute "powershell.exe" `
             -Argument "-NoProfile -ExecutionPolicy Bypass -File `"${InstallPath}WAU-UpdateNow.ps1`""
         $taskPrincipal = New-ScheduledTaskPrincipal -UserId S-1-5-18 -RunLevel Highest
