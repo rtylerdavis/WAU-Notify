@@ -114,7 +114,7 @@ foreach ($app in @($pendingData.Apps)) {
 }
 
 # Sort ascending so most urgent apps appear at the top
-$sortedRows = $appRows | Sort-Object DaysRemainingValue
+$sortedRows = @($appRows | Sort-Object DaysRemainingValue)
 #endregion BUILD ROW OBJECTS
 
 #region XAML
