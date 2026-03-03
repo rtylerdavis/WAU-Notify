@@ -324,7 +324,7 @@ if (Test-Network) {
             #region DEADLINE MODE
             if ($DeadlineDays -gt 0 -and $Script:IsSystem) {
 
-                Write-ToLog "Deadline mode active ($DeadlineDays day`(s`) to forced update)" "Cyan"
+                Write-ToLog "Deadline mode active - $DeadlineDays days to forced update" "Cyan"
 
                 # Step 1: Sync deadline registry.
                 # First call with -OutdatedApps purges entries for apps no longer outdated
@@ -344,7 +344,7 @@ if (Test-Network) {
 
                 # Step 3: Forced background update for overdue apps — no dialog shown.
                 if ($overdueEntries.Count -gt 0) {
-                    Write-ToLog "Processing $($overdueEntries.Count) overdue app`(s`)" "DarkYellow"
+                    Write-ToLog "Processing $($overdueEntries.Count) overdue apps" "DarkYellow"
                     foreach ($entry in $overdueEntries) {
                         $app = $outdated | Where-Object { $_.Id -eq $entry.AppId } | Select-Object -First 1
                         if ($app -and $app.Version -ne "Unknown") {
@@ -372,7 +372,7 @@ if (Test-Network) {
                 if ($pendingEntries.Count -gt 0) {
                     $explorerprocesses = @(Get-CimInstance -Query "SELECT * FROM Win32_Process WHERE Name='explorer.exe'" -ErrorAction SilentlyContinue)
                     if ($explorerprocesses.Count -eq 0) {
-                        Write-ToLog "No user logged on — skipping update prompt for $($pendingEntries.Count) pending app`(s`)" "Gray"
+                        Write-ToLog "No user logged on — skipping update prompt for $($pendingEntries.Count) pending apps" "Gray"
                     }
                     else {
                         # Check snooze: if NextPromptTime is set and hasn't elapsed, skip the prompt.
