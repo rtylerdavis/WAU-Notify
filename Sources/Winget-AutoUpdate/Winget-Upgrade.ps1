@@ -413,7 +413,8 @@ if (Test-Network) {
                             })
 
                             if ($promptApps.Count -gt 0) {
-                                Start-UpdatePromptTask -PendingApps $promptApps -ReminderIntervalDays $ReminderIntervalDays
+                                $companyName = if ($WAUConfig.WAU_CompanyName) { $WAUConfig.WAU_CompanyName } else { '' }
+                                Start-UpdatePromptTask -PendingApps $promptApps -ReminderIntervalDays $ReminderIntervalDays -CompanyName $companyName
                                 Write-ToLog "End of process (prompt fired)!" "Cyan"
                                 Start-Sleep 3
                                 Exit 0

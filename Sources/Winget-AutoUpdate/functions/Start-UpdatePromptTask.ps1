@@ -42,7 +42,10 @@ function Start-UpdatePromptTask {
         [array]$PendingApps,
 
         [Parameter(Mandatory = $true)]
-        [int]$ReminderIntervalDays
+        [int]$ReminderIntervalDays,
+
+        [Parameter(Mandatory = $false)]
+        [string]$CompanyName = ''
     )
 
     $ConfigDir = Join-Path $WAUConfig.InstallLocation "config"
@@ -53,6 +56,7 @@ function Start-UpdatePromptTask {
     $payload = [PSCustomObject]@{
         Config = [PSCustomObject]@{
             ReminderIntervalDays = $ReminderIntervalDays
+            CompanyName          = $CompanyName
         }
         Apps = @($PendingApps)
     }

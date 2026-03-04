@@ -153,6 +153,12 @@ This helps prevent many devices from running the task at the exact same time. Th
 If this policy is enabled, the scheduled task will have a random delay set based on the time inputted.
 
 If this policy is disabled or not configured, the default no delay.</string>
+      <string id="CompanyName_Name">Company name for deadline prompt dialog</string>
+      <string id="CompanyName_Explain">If this policy is enabled, the deadline prompt dialog header will display the specified company name instead of "Your organization".
+
+For example, setting this to "Contoso" changes the header to "Contoso requires the following updates to be installed."
+
+If this policy is disabled or not configured, the default text "Your organization" is used.</string>
       <string id="UpdateDeadlineDays_Name">Update deadline enforcement (days)</string>
       <string id="UpdateDeadlineDays_Explain">If this policy is enabled, WAU will track pending updates and display a deadline prompt dialog to logged-in users rather than silently installing updates.
 
@@ -226,6 +232,11 @@ Notes:
       <presentation id="UpdatesTimeDelayTime">
         <textBox refId="UpdatesTimeDelayTime">
           <label>Random delay HH:mm</label>
+        </textBox>
+      </presentation>
+      <presentation id="CompanyName">
+        <textBox refId="CompanyName">
+          <label>Company name:</label>
         </textBox>
       </presentation>
       <presentation id="UpdateDeadlineDays">

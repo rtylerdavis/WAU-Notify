@@ -86,6 +86,10 @@ $reminderDays = 2
 if ($pendingData.Config -and $null -ne $pendingData.Config.ReminderIntervalDays) {
     $reminderDays = [int]$pendingData.Config.ReminderIntervalDays
 }
+$companyName = ''
+if ($pendingData.Config -and $pendingData.Config.CompanyName) {
+    $companyName = $pendingData.Config.CompanyName
+}
 #endregion READ PENDING UPDATES
 
 #region BUILD ROW OBJECTS
@@ -140,7 +144,7 @@ $sortedRows = @($appRows | Sort-Object DaysRemainingValue)
 
         <!-- Header -->
         <TextBlock Grid.Row="0"
-                   Text="Your organization requires the following updates to be installed."
+                   Name="HeaderText"
                    TextWrapping="Wrap"
                    FontSize="13"
                    FontWeight="SemiBold"
@@ -232,6 +236,25 @@ $appListCtrl  = $window.FindName('AppList')
 $remindBtn    = $window.FindName('RemindButton')
 $updateNowBtn = $window.FindName('UpdateNowButton')
 $countdownLbl = $window.FindName('CountdownText')
+$headerTxt    = $window.FindName('HeaderText')
+
+# Set header text with company name if configured
+if ($companyName) {
+    $headerTxt.Text = "$companyName requires the following updates to be installed."
+}
+else {
+    $headerTxt.Text = "Your organization requires the following updates to be installed."
+}
+
+# Set window icon from WAU's info.png if available
+$iconPath = Join-Path $PSScriptRoot 'icons\info.png'
+if (Test-Path $iconPath) {
+    $bitmap = New-Object System.Windows.Media.Imaging.BitmapImage
+    $bitmap.BeginInit()
+    $bitmap.UriSource = New-Object System.Uri($iconPath, [System.UriKind]::Absolute)
+    $bitmap.EndInit()
+    $window.Icon = $bitmap
+}
 
 # Set button label with configured interval
 $remindBtn.Content = "Remind Me in $reminderDays Day$(if ($reminderDays -ne 1) { 's' })"
