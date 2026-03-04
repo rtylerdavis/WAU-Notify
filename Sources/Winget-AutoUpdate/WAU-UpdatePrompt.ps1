@@ -27,20 +27,6 @@
 
 #Requires -Version 5.1
 
-#region DEBUG LOG
-# Temporary error logging -- captures any crash to a log file for debugging.
-$debugLog = Join-Path $PSScriptRoot 'logs\prompt-debug.log'
-try { [System.IO.Directory]::CreateDirectory((Split-Path $debugLog)) | Out-Null } catch {}
-"$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - WAU-UpdatePrompt started" | Out-File $debugLog -Append
-"  PSScriptRoot: $PSScriptRoot" | Out-File $debugLog -Append
-"  PID: $PID / User: $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)" | Out-File $debugLog -Append
-trap {
-    "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - FATAL: $_" | Out-File $debugLog -Append
-    $_.ScriptStackTrace | Out-File $debugLog -Append
-    exit 1
-}
-#endregion DEBUG LOG
-
 #region ASSEMBLIES
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore

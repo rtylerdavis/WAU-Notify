@@ -330,11 +330,34 @@ if (Test-Network) {
 
                 Write-ToLog "Deadline mode active - $DeadlineDays days to forced update" "Cyan"
 
+                # Filter outdated apps through whitelist/blacklist before deadline processing.
+                # Without this, excluded apps (e.g. WAU itself) would get deadline-tracked.
+                if ($UseWhiteList) {
+                    $deadlineApps = @($outdated | Where-Object {
+                        $id = $_.Id
+                        ($toUpdate -contains $id) -or ($toUpdate | Where-Object { $id -like $_ })
+                    })
+                    $skippedCount = $outdated.Count - $deadlineApps.Count
+                    if ($skippedCount -gt 0) {
+                        Write-ToLog "$skippedCount apps excluded from deadline tracking (not in whitelist)" "Gray"
+                    }
+                }
+                else {
+                    $deadlineApps = @($outdated | Where-Object {
+                        $id = $_.Id
+                        -not ($toSkip -contains $id) -and -not ($toSkip | Where-Object { $id -like $_ })
+                    })
+                    $skippedCount = $outdated.Count - $deadlineApps.Count
+                    if ($skippedCount -gt 0) {
+                        Write-ToLog "$skippedCount apps excluded from deadline tracking (in blacklist)" "Gray"
+                    }
+                }
+
                 # Step 1: Sync deadline registry.
                 # First call with -OutdatedApps purges entries for apps no longer outdated
                 # (e.g. user self-updated outside WAU). Second call refreshes our working list.
-                $null = Get-UpdateDeadlines -OutdatedApps $outdated
-                foreach ($app in $outdated) {
+                $null = Get-UpdateDeadlines -OutdatedApps $deadlineApps
+                foreach ($app in $deadlineApps) {
                     Set-UpdateDeadline -App $app -DeadlineDays $DeadlineDays
                 }
                 $deadlines = Get-UpdateDeadlines
@@ -350,7 +373,7 @@ if (Test-Network) {
                 if ($overdueEntries.Count -gt 0) {
                     Write-ToLog "Processing $($overdueEntries.Count) overdue apps" "DarkYellow"
                     foreach ($entry in $overdueEntries) {
-                        $app = $outdated | Where-Object { $_.Id -eq $entry.AppId } | Select-Object -First 1
+                        $app = $deadlineApps | Where-Object { $_.Id -eq $entry.AppId } | Select-Object -First 1
                         if ($app -and $app.Version -ne "Unknown") {
                             Write-ToLog "Forced update (deadline reached): $($app.Name)"
                             Update-App $app
@@ -400,7 +423,7 @@ if (Test-Network) {
                             # Build the pending apps payload, enriching each deadline entry with
                             # live name/version data from the current winget outdated list.
                             $promptApps = @(foreach ($entry in $pendingEntries) {
-                                $app = $outdated | Where-Object { $_.Id -eq $entry.AppId } | Select-Object -First 1
+                                $app = $deadlineApps | Where-Object { $_.Id -eq $entry.AppId } | Select-Object -First 1
                                 if ($app) {
                                     [PSCustomObject]@{
                                         Name             = $app.Name
