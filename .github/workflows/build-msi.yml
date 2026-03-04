@@ -50,7 +50,7 @@ jobs:
           wix build -src build.wxs `
             -ext WixToolset.Util.wixext `
             -ext WixToolset.UI.wixext `
-            -out ..\..\..\WAU-Deadline-Prompt.msi `
+            -out ..\..\..\WAU-Deadline-Prompt_${{ github.ref_name }}.msi `
             -arch x64 `
             -d Version=2.10.0.1 `
             -d NextSemVer=2.10.0 `
@@ -61,12 +61,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WAU-Deadline-Prompt-msi
-          path: WAU-Deadline-Prompt.msi
+          path: WAU-Deadline-Prompt_${{ github.ref_name }}.msi
           retention-days: 30
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: WAU-Deadline-Prompt.msi
+          files: WAU-Deadline-Prompt_${{ github.ref_name }}.msi
           generate_release_notes: true
