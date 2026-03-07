@@ -146,7 +146,7 @@ if (Test-Network) {
         # user-context-update.json and triggers the UserContext task.
         # If that file exists, process those updates and exit.
         if (-not $Script:IsSystem) {
-            $userUpdateJson = [System.IO.Path]::Combine($Script:WorkingDir, 'config', 'user-context-update.json')
+            $userUpdateJson = [System.IO.Path]::Combine($env:ProgramData, 'Winget-AutoUpdate', 'user-context-update.json')
             if (Test-Path $userUpdateJson) {
                 $Script:InstallOK = 0
                 Write-ToLog "Processing user-context updates triggered by UpdateNow" "Cyan"
@@ -371,9 +371,11 @@ if (Test-Network) {
                     })
                 }
 
-                $userOutdatedPath = [System.IO.Path]::Combine($Script:WorkingDir, 'config', 'user-context-outdated.json')
+                $userOutdatedDir = [System.IO.Path]::Combine($env:ProgramData, 'Winget-AutoUpdate')
+                if (-not (Test-Path $userOutdatedDir)) { New-Item -ItemType Directory -Path $userOutdatedDir -Force | Out-Null }
+                $userOutdatedPath = [System.IO.Path]::Combine($userOutdatedDir, 'user-context-outdated.json')
                 if ($userEligible.Count -gt 0) {
-                    ConvertTo-Json -InputObject @($userEligible) -Depth 3 | Set-Content -Path $userOutdatedPath -Encoding UTF8 -Force
+                    ConvertTo-Json -InputObject @($userEligible) -Depth 3 | Set-Content -Path $userOutdatedPath -Encoding UTF8 -Force -ErrorAction Stop
                     Write-ToLog "$($userEligible.Count) user-context outdated apps written for deadline tracking" "Cyan"
                 }
                 else {
@@ -413,7 +415,7 @@ if (Test-Network) {
                 # Merge user-context outdated apps if UserContext is enabled.
                 # The file is written by the user-context run on the previous cycle.
                 if ($WAUConfig.WAU_UserContext -eq 1) {
-                    $userOutdatedPath = [System.IO.Path]::Combine($Script:WorkingDir, 'config', 'user-context-outdated.json')
+                    $userOutdatedPath = [System.IO.Path]::Combine($env:ProgramData, 'Winget-AutoUpdate', 'user-context-outdated.json')
                     if (Test-Path $userOutdatedPath) {
                         try {
                             $userContextApps = @(Get-Content -Path $userOutdatedPath -Raw -Encoding UTF8 | ConvertFrom-Json)

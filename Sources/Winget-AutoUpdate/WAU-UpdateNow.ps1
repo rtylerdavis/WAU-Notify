@@ -122,7 +122,9 @@ if ($machineApps.Count -gt 0) {
 # no longer appears in user-context-outdated.json (self-healing).
 if ($userApps.Count -gt 0) {
     if ($Script:WAUConfig.WAU_UserContext -eq 1) {
-        $userUpdatePath = [System.IO.Path]::Combine($Script:WorkingDir, 'config', 'user-context-update.json')
+        $userUpdateDir = [System.IO.Path]::Combine($env:ProgramData, 'Winget-AutoUpdate')
+        if (-not (Test-Path $userUpdateDir)) { New-Item -ItemType Directory -Path $userUpdateDir -Force | Out-Null }
+        $userUpdatePath = [System.IO.Path]::Combine($userUpdateDir, 'user-context-update.json')
         try {
             ConvertTo-Json -InputObject @($userApps) -Depth 3 | Set-Content -Path $userUpdatePath -Encoding UTF8 -Force
             Write-ToLog "$($userApps.Count) user-scoped apps written to user-context-update.json"
