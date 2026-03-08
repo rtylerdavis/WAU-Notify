@@ -133,7 +133,7 @@ function Install-WingetAutoUpdate {
         $promptCmd = "& '${InstallPath}WAU-UpdatePrompt.ps1'"
         $encodedCmd = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($promptCmd))
         $taskAction = New-ScheduledTaskAction -Execute "${InstallPath}ServiceUI.exe" `
-            -Argument "-process:explorer.exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -Sta -WindowStyle Hidden -EncodedCommand $encodedCmd" `
+            -Argument "-process:explorer.exe $PSHOME\powershell.exe -NoProfile -ExecutionPolicy Bypass -Sta -WindowStyle Hidden -EncodedCommand $encodedCmd" `
             -WorkingDirectory $InstallPath
         $taskPrincipal = New-ScheduledTaskPrincipal -UserId S-1-5-18 -RunLevel Highest
         $taskSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit 00:15:00 -MultipleInstances IgnoreNew

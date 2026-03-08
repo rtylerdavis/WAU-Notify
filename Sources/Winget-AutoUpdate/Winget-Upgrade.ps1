@@ -367,7 +367,9 @@ if (Test-Network) {
                     Set-Acl $sharedDir $acl
                 }
             }
-            catch { }
+            catch {
+                Write-ToLog "Could not set ACL on shared directory: $($_.Exception.Message)" "Yellow"
+            }
         }
         #endregion DEADLINE CONFIG
 

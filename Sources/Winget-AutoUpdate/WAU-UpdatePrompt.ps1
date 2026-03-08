@@ -52,6 +52,7 @@ public class WauAppRow {
     public string DaysRemainingDisplay { get; set; }
     public int    DaysRemainingValue   { get; set; }
     public bool   IsUrgent             { get; set; }
+    public bool   IsFinalDay           { get; set; }
 }
 '@
 #endregion ROW DATA CLASS
@@ -95,24 +96,28 @@ foreach ($app in @($pendingData.Apps)) {
     $daysLeft = ($deadline - $today).Days
 
     $row = [WauAppRow]::new()
-    $row.IsSelected           = $false
+    $row.IsSelected           = ($daysLeft -le 0)
     $row.Id                   = $app.Id
     $row.Name                 = $app.Name
     $row.AvailableVersion     = $app.AvailableVersion
     $row.DeadlineDisplay      = $deadline.ToString('MMM d, yyyy')
     $row.DaysRemainingDisplay = switch ($daysLeft) {
-        0       { 'Today' }
-        1       { '1 day' }
-        default { "$daysLeft days" }
+        { $_ -lt 0 } { 'Overdue' }
+        0             { 'Today' }
+        1             { '1 day' }
+        default       { "$daysLeft days" }
     }
     $row.DaysRemainingValue   = $daysLeft
     $row.IsUrgent             = ($daysLeft -le 3)
+    $row.IsFinalDay           = ($daysLeft -le 0)
 
     $appRows.Add($row)
 }
 
 # Sort ascending so most urgent apps appear at the top
 $sortedRows = @($appRows | Sort-Object DaysRemainingValue)
+$script:HasFinalDayApps = @($sortedRows | Where-Object { $_.IsFinalDay }).Count -gt 0
+$script:AllFinalDay     = @($sortedRows | Where-Object { -not $_.IsFinalDay }).Count -eq 0
 #endregion BUILD ROW OBJECTS
 
 #region XAML
@@ -169,7 +174,17 @@ $sortedRows = @($appRows | Sort-Object DaysRemainingValue)
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                           HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center">
+                                    <CheckBox.Style>
+                                        <Style TargetType="CheckBox">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsFinalDay}" Value="True">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+                                </CheckBox>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -195,6 +210,10 @@ $sortedRows = @($appRows | Sort-Object DaysRemainingValue)
                         <DataTrigger Binding="{Binding IsUrgent}" Value="True">
                             <Setter Property="Background" Value="#FFF3CD"/>
                             <Setter Property="BorderBrush" Value="#FFE69C"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsFinalDay}" Value="True">
+                            <Setter Property="Background" Value="#FFA5A5"/>
+                            <Setter Property="BorderBrush" Value="#FF8A8A"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -250,9 +269,19 @@ else {
     $headerTxt.Text = "Your organization requires the following updates to be installed."
 }
 
-# Set instruction text
+# Set instruction text and button visibility based on final-day apps
 $dayLabel = if ($reminderDays -ne 1) { 'days' } else { 'day' }
-$instructionTxt.Text = "Check the box next to apps you're ready to update now, or update all at once. If you don't update all apps now, you will be reminded in $reminderDays $dayLabel."
+if ($script:AllFinalDay) {
+    $instructionTxt.Text = "The following apps have reached their update deadline and must be updated now."
+    $remindBtn.Visibility = [System.Windows.Visibility]::Collapsed
+}
+elseif ($script:HasFinalDayApps) {
+    $instructionTxt.Text = "Apps highlighted in red have reached their deadline and must be updated today. You may select additional apps to include in this update."
+    $remindBtn.Visibility = [System.Windows.Visibility]::Collapsed
+}
+else {
+    $instructionTxt.Text = "Check the box next to apps you're ready to update now, or update all at once. If you don't update all apps now, you will be reminded in $reminderDays $dayLabel."
+}
 
 # Set window icon from WAU's info.png if available
 $iconPath = Join-Path $PSScriptRoot 'icons\notify_icon.png'
@@ -306,15 +335,22 @@ $timer.Start()
 # when any checkbox in the ListView is toggled.
 $script:UpdateButtonState = {
     $selectedCount = @($sortedRows | Where-Object { $_.IsSelected }).Count
-    if ($selectedCount -gt 0) {
-        $updateNowBtn.Content = "Update Selected ($selectedCount)"
-        $remindBtn.IsEnabled = $false
-    }
-    else {
+    if ($selectedCount -eq 0) {
         $updateNowBtn.Content = 'Update Now'
         $remindBtn.IsEnabled = $true
     }
+    elseif ($selectedCount -eq $sortedRows.Count) {
+        $updateNowBtn.Content = 'Update Now'
+        $remindBtn.IsEnabled = $false
+    }
+    else {
+        $updateNowBtn.Content = "Update Selected ($selectedCount)"
+        $remindBtn.IsEnabled = $false
+    }
 }
+
+# Set initial button state (final-day apps start pre-checked)
+& $script:UpdateButtonState
 
 $appListCtrl.AddHandler(
     [System.Windows.Controls.Primitives.ToggleButton]::CheckedEvent,
@@ -367,6 +403,10 @@ if ($script:Action -eq 'UpdateNow') {
             Set-ItemProperty -Path $WAURegPath -Name 'NextPromptTime' -Value $nextPromptTime
         }
         catch { }
+    }
+    else {
+        # Full update -- clear any stale NextPromptTime from a previous partial snooze
+        Remove-ItemProperty -Path $WAURegPath -Name 'NextPromptTime' -ErrorAction SilentlyContinue
     }
 
     # Fire the UpdateNow task
