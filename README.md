@@ -192,7 +192,3 @@ If `WAU_UpdateDeadlineDays` is not set or is `0`, WAU-Notify has no effect and W
 - **User-context one-cycle delay** -- User-scoped apps are detected in the user-context run and picked up by the SYSTEM task on the next cycle.
 - **ServiceUI on locked screens** -- If no user session is available, the prompt is skipped gracefully and retried on the next WAU run.
 - **Black console flash** -- Brief black window flash from ServiceUI.exe/conhost.exe is cosmetic only.
-
-## Upstream
-
-This project is based on [Winget-AutoUpdate](https://github.com/Romanitho/Winget-AutoUpdate) by Romanitho. An upstream proposal has been submitted as [issue #1130](https://github.com/Romanitho/Winget-AutoUpdate/issues/1130). Romanitho is working on a C# rewrite of WAU using the WinGet COM API and may integrate this feature into the new version.
